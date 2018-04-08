@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 var request = require('request');
 var morgan = require('morgan');
 
+var axios = require('axios');
+var cheerio = require('cheerio');
+
 var PORT = process.env.PORT || 3000;
 
 var Article = require('./models/Articles.js');
@@ -44,13 +47,44 @@ mongoose.connect(MONGODB_URI, {
 });
 
 //render handlebars page
-app.get ('/', (req, res) => {
+app.get('/', (req, res) => {
     res.render('index.handlebars');
     console.log('working');
 });
 
 
+
+app.get("/scrape", (req, res) => {
+    // First, we grab the body of the html with request
+    axios.get("http://www.latimes.com/").then((response) => {
+
+        var $ = cheerio.load(response.data);
+
+        $('article h2').each((i, elemenet) => {
+            var result = {};
+
+            result.title = $(this)
+                .children('a')
+                .text();
+            result.summarry = $(this)
+                .children('a')
+                .text();
+            result.link = $(this)
+                .children('a')
+                .attr('href');
+
+            db.Article.create(result).then ((dbArticle) => {
+                console.log(dbArticle);
+            })
+            .catch((err) => {
+                return res.json(err);
+            });
+        });
+        res.send('complete');
+    });
+});
+
 // server listener
 app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT);
-});
+            console.log("App listening on PORT " + PORT);
+        });
