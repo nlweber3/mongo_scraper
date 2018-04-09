@@ -60,13 +60,13 @@ app.get("/scrape", (req, res) => {
 
         var $ = cheerio.load(response.data);
 
-        $('article h2').each((i, elemenet) => {
+        $('article h2').each((i, element) => {
             var result = {};
 
             result.title = $(this)
                 .children('a')
                 .text();
-            result.summarry = $(this)
+            result.summary = $(this)
                 .children('a')
                 .text();
             result.link = $(this)
