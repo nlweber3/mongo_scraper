@@ -46,12 +46,25 @@ mongoose.connect(MONGODB_URI, {
     useMongoClient: true
 });
 
+var db = mongoose.connection;
+
 //render handlebars page
 app.get('/', (req, res) => {
     res.render('index.handlebars');
     console.log('working');
 });
 
+
+
+// Show any mongoose errors
+db.on("error", (error) => {
+    console.log("Mongoose Error: ", error);
+  });
+  
+  // Once logged in to the db through mongoose, log a success message
+  db.once("open", () => {
+    console.log("Mongoose connection successful.");
+  });
 
 
 app.get("/scrape", (req, res) => {
@@ -83,6 +96,7 @@ app.get("/scrape", (req, res) => {
         res.send('complete');
     });
 });
+  
 
 // server listener
 app.listen(PORT, function () {
