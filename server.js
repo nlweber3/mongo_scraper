@@ -63,12 +63,13 @@ db.on("error", (error) => {
   
   // Once logged in to the db through mongoose, log a success message
   db.once("open", () => {
-    console.log("Mongoose connection successful.");
+    console.log("Mongoose connection successful.", db);
   });
 
+//function for scraping the website for articles
 
 app.get("/scrape", (req, res) => {
-    // First, we grab the body of the html with request
+
     axios.get("http://www.latimes.com/").then((response) => {
 
         var $ = cheerio.load(response.data);
@@ -96,7 +97,22 @@ app.get("/scrape", (req, res) => {
         res.send('complete');
     });
 });
-  
+
+//function for getting articles from db
+
+app.get("/articles", (req, res) => {
+    
+
+    db.Article.find({})
+      .then(function(dbArticle) {
+        // If we were able to successfully find Articles, send them back to the client
+        res.json(dbArticle);
+      })
+      .catch(function(err) {
+    
+        res.json(err);
+      });
+  });
 
 // server listener
 app.listen(PORT, function () {
